@@ -9,6 +9,13 @@ select * from legislators_terms;
    --> time series of actions: terms in office for each legislator
    --> and an aggregate metric that measures something relevant to the process: count of those still in office each period from the starting date
 
+-- BUSINESS QUESTION
+-- =======================================================================================================
+-- What percentage of US legislators, grouped by the year they first entered office (their cohort), 
+-- remain in office (are retained) in each successive two-year period following their first term start date?"
+-- =======================================================================================================
+
+
 -- Step 1: find the first date each legislator took office (first_term) 
    --> take the min of the term_start and GROUP BY each id_bioguide, the unique identifier for a legislator
 select id_bioguide,
@@ -17,7 +24,7 @@ from legislators_terms
 group by 1
 order by first_term;
 
--- Step 2: The next step is to put this code into a subquery and JOIN it to the time series of actions (tsa)
+-- Step 2: The next step is to put this code above into a subquery and JOIN it to the time series of actions (tsa)
 select date_part('year', age(tsa.term_start,a.first_term)) as period,
     count(distinct a.id_bioguide) as cohort_retained
     from (
