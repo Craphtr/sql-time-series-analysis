@@ -6,12 +6,14 @@ select * from retail_sales;
 -- Displaying simple trends
 select sales_month, sales from retail_sales
 where kind_of_business = 'Retail and food services sales, total';
+-- Visualization: /visuals/The_Retail_Services_Monthly_Sales_Trend.png
 
 -- Since there's some pattern to the data, we can extract the year from the sales_month and replot
 select extract(year from sales_month) as sales_year, sum(sales) as sales from retail_sales
 where kind_of_business = 'Retail and food services sales, total'
 group by sales_year
 order by sales_year;
+-- Visualization: /visuals/
 
 -- Comparing components of categorical time slices
 select extract(year from sales_month) as sales_year, kind_of_business, sum(sales) as sales from retail_sales
@@ -31,7 +33,7 @@ where kind_of_business in ('Men''s clothing stores', 'Women''s clothing stores')
 group by sales_month
 order by sales_month;
 
--- Seasonality observed so we observe yearly sales in Men and Women's clothings
+-- Seasonality observed so we observe yearl y sales in Men and Women's clothings
 select extract(year from sales_month) as sales_year, kind_of_business, sum(sales) from retail_sales
 where kind_of_business in ('Men''s clothing stores', 'Women''s clothing stores')
 group by 1,2
