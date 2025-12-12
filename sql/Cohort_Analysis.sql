@@ -38,7 +38,7 @@ select date_part('year', age(tsa.term_start,a.first_term)) as period,
 -- Step 3: Now that we have the periods and the number of legislators retained in each, 
    --> the final step is to calculate the total cohort_size and populate it in each row 
    --> so that the cohort_retained can be divided by it to get the pctage_retained. 
-create or replace view cohort_pctage_retained_view as
+create or replace view cohort_pctage_retained_view as;
    with cohort_and_time_series as (
    select date_part('year', age(tsa.term_start,a.first_term)) as period_,
     count(distinct a.id_bioguide) as cohort_retained
@@ -55,6 +55,35 @@ select period_,
     cohort_retained,
     round(cohort_retained::numeric/ first_value(cohort_retained) over (order by period_),2) as pct_retained
 from cohort_and_time_series;
+
+-- ========================================================================
+-- A GENERALIZED COHORT PATTERN
+-- ========================================================================
+WITH cohort AS (
+    SELECT entity_id,
+           MIN(event_date) AS first_event
+    FROM events
+    GROUP BY entity_id
+),
+timeline AS (
+    SELECT c.entity_id,
+           e.event_date,
+           DATE_PART('year', AGE(e.event_date, c.first_event)) AS period
+    FROM cohort c
+    JOIN events e
+      ON c.entity_id = e.entity_id
+)
+SELECT period,
+       COUNT(DISTINCT entity_id) AS retained
+FROM timeline
+GROUP BY period
+ORDER BY period;
+-- =========================================================================
+
+
+
+
+
 
 --PIVOT AND AGGREGATE WITH A CASE STATEMENT TO SEE THE RETENTION PER PERIOD
 with cohort_and_time_series as (
